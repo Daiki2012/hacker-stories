@@ -1,62 +1,79 @@
 import * as React from 'react';
 
-const title = 'React';
+const App = () => {
+  const stories = [
+    {
+      title: 'React',
+      url: 'https://reactjs.org/',
+      author: 'Jordan Walke',
+      num_comments: 3,
+      points: 4,
+      objectID: 0,
+    },
+    {
+      title: 'Redux',
+      url: 'https://redux.js.org/',
+      author: 'Dan Abramov, Andrew Clark',
+      num_comments: 2,
+      points: 5,
+      objectID: 1,
+    },
+  ];
 
-const list = [
-  {
-    title: 'React',
-    url: 'https://reactjs.org/',
-    author: 'Jordan Walke',
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://redux.js.org/',
-    author: 'Dan Abramov, Andrew Clark',
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-];
+  const [searchTerm, setSearchTerm] = React.useState(
+    localStorage.getItem('search') || 'React'
+  );
 
-function App() {
+  React.useEffect(() => {
+    localStorage.setItem('search', searchTerm);
+  }, [searchTerm]);
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const searchedStories = stories.filter(function (story) {
+    return story.title.includes(searchTerm);
+  });
+
   return (
   <div>
     <h1>My Hacker Stories</h1>
-    <Search />
+    <Search search={searchTerm} onSearch={handleSearch} />
     <hr />
-    <List />
+    <List list={searchedStories} />
   </div>
   );
 }
 
-function List() {
-  return (
-    <ul>
-      {list.map(function (item) {
-        return (
-          <li key={item.objectID}>
-            <span>
-              <a href={item.url}>{item.title}</a>
-            </span>
-            <span>{item.author}</span>
-            <span>{item.num_comments}</span>
-            <span>{item.points}</span>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
+const List = (props) => (
+  <ul>
+    {props.list.map((item) => (
+        <Item key={item.objectID} item={item} />
+    ))}
+  </ul>
+)
 
-function Search() {
-  return (
+const Item = (props) => (
+  <li>
+    <span>
+      <a href={props.item.url}>{props.item.title}</a>
+    </span>
+    <span>{props.item.author}</span>
+    <span>{props.item.num_comments}</span>
+    <span>{props.item.points}</span>
+  </li>
+);
+
+const Search = (props) => (
     <div>
       <label htmlFor="search">Search: </label>
-      <input id="search" type="text" />
+      <input
+      id="search"
+      type="text"
+      value={props.search}
+      onChange={props.onSearch} />
     </div>
-  );
-}
+);
+
 export default App;
