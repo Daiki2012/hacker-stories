@@ -20,13 +20,24 @@ const initialStories = [
 ];
 
 
-const App = () => {
-  const [searchTerm, setSearchTerm] = useStorageState(
-    'search',
-    'React'
-  );
+const getAsyncStories = () =>
+  new Promise((resolve) =>
+    setTimeout(
+      () => resolve({ data: { stories: initialStories } }),
+      3000
+    )
+);
 
-  const [stories, setStories] = React.useState(initialStories);
+const App = () => {
+  const [searchTerm, setSearchTerm] = useStorageState('search','');
+
+  const [stories, setStories] = React.useState([]);
+
+  React.useEffect(() => {
+    getAsyncStories().then(result => {
+      setStories(result.data.stories);
+    });
+  }, []);
 
   const handleRemoveStory = (item) => {
     const newStories = stories.filter(
