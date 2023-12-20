@@ -43,24 +43,29 @@ const App = () => {
     { data: [], isLoading: false, isError: false }
   );
 
-  React.useEffect(() => {
+  // dedicated function for data fetching
+  const handleFetchStories = React.useCallback(() => {
     if (!searchTerm) return;
+
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    //fetch(`${API_ENDPOINT}react`) // B
     fetch(`${API_ENDPOINT}${searchTerm}`)
-      .then((response) => response.json()) // C
+      .then((response) => response.json())
       .then((result) => {
         dispatchStories({
           type: 'STORIES_FETCH_SUCCESS',
-          payload: result.hits, // D
+          payload: result.hits,
         });
       })
       .catch(() =>
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
       );
+  }, [searchTerm]); // E
 
-  }, [searchTerm]);
+
+  React.useEffect(() => {
+    handleFetchStories(); // C
+  }, [handleFetchStories]); // D
 
   const handleRemoveStory = (item) => {
     dispatchStories({
@@ -72,10 +77,6 @@ const App = () => {
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
-
-  const searchedStories = stories.data.filter((story) =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
   <div>
