@@ -58,6 +58,7 @@ const SearchForm = ({
 );
 
 const App = () => {
+  console.log('App')
   const [searchTerm, setSearchTerm] = useStorageState('search','');
 
   const [url, setUrl] = React.useState(
@@ -99,12 +100,19 @@ const App = () => {
     handleFetchStories();
   }, [handleFetchStories]);
 
+  const handleRemoveStory = React.useCallback((item) => {
+    dispatchStories({
+      type: 'REMOVE_STORY',
+      payload: item,
+    });
+  }, []);
+  /*
   const handleRemoveStory = (item) => {
     dispatchStories({
       type: 'REMOVE_STORY',
       payload: item,
     });
-  };
+  };*/
 
   return (
   <div>
@@ -126,17 +134,20 @@ const App = () => {
   );
 }
 
-const List = ({ list, onRemoveItem }) => (
-  <ul>
-    {list.map((item) => (
-      <Item
-        key={item.objectID}
-        item={item}
-        onRemoveItem={onRemoveItem}
-      />
-    ))}
-  </ul>
-)
+const List = React.memo(function List({ list, onRemoveItem }) {
+  console.log('List')
+  return (
+    <ul>
+        {list.map((item) => (
+          <Item
+            key={item.objectID}
+            item={item}
+            onRemoveItem={onRemoveItem}
+          />
+        ))}
+      </ul>
+    )
+})
 
 const Item = ({ item, onRemoveItem }) => (
   <li>
@@ -175,12 +186,17 @@ const InputWithLabel = ({id, value, type = 'text', onInputChange, isFocused, chi
 };
 
 const useStorageState = (key, initialState) => {
+  const isMounted = React.useRef(false);
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
  );
 
   React.useEffect(() => {
-    localStorage.setItem(key, value);
+    if (!isMounted.current) {
+      isMounted.current = true;
+    }else{
+      localStorage.setItem(key, value);
+    }
   }, [value, key]);
 
   return [value, setValue];
