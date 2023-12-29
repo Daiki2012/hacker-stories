@@ -1,5 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
+export { storiesReducer, SearchForm, InputWithLabel, List, Item };
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
