@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import axios from 'axios';
 import App, {
     storiesReducer,
     Item,
@@ -12,6 +13,9 @@ import App, {
     fireEvent,
     waitFor,
   } from '@testing-library/react';
+
+
+vi.mock('axios');
 
 const storyOne = {
     title: 'React',
@@ -33,6 +37,111 @@ const storyTwo = {
 
 const stories = [storyOne, storyTwo];
 
+/*
+describe('App', () => {
+  it('succeeds fetching data', async () => {
+    const promise = Promise.resolve({
+      data: {
+        hits: stories,
+      },
+    });
+    axios.get.mockImplementationOnce(() => promise);
+    render(<App />);
+    expect(screen.queryByText(/Loading/)).toBeInTheDocument();
+    await waitFor(async () => await promise);
+    expect(screen.queryByText(/Loading/)).toBeNull();
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Redux')).toBeInTheDocument();
+    expect(screen.getAllByText('Dismiss').length).toBe(2);
+  });
+  it('fails fetching data', async () => {
+    const promise = Promise.reject();
+    axios.get.mockImplementationOnce(() => promise);
+    render(<App />);
+    expect(screen.getByText(/Loading/)).toBeInTheDocument();
+    try {
+      await waitFor(async () => await promise);
+    } catch (error) {
+      expect(screen.queryByText(/Loading/)).toBeNull();
+      expect(screen.queryByText(/went wrong/)).toBeInTheDocument();
+    }
+  });
+
+  it('searches for specific stories', async () => {
+    const reactPromise = Promise.resolve({
+      data: {
+        hits: stories,
+      },
+    });
+    const anotherStory = {
+      title: 'JavaScript',
+      url: 'https://en.wikipedia.org/wiki/JavaScript',
+      author: 'Brendan Eich',
+      num_comments: 15,
+      points: 10,
+      objectID: 3,
+    };
+    const javascriptPromise = Promise.resolve({
+      data: {
+        hits: [anotherStory],
+      },
+    });
+
+    axios.get.mockImplementation((url) => {
+      console.log(url)
+      if (url.includes('React')) {
+        return reactPromise;
+      }
+      if (url.includes('JavaScript')) {
+        return javascriptPromise;
+      }
+      throw Error();
+    });
+    render(<App />);
+
+    await waitFor(async () => await reactPromise);
+    screen.debug();
+
+    expect(screen.queryByDisplayValue('React')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('JavaScript')).toBeNull();
+    expect(screen.queryByText('Jordan Walke')).toBeInTheDocument();
+    expect(screen.queryByText('Dan Abramov, Andrew Clark')).toBeInTheDocument();
+    expect(screen.queryByText('Brendan Eich')).toBeNull();
+    fireEvent.change(screen.queryByDisplayValue('React'), {
+      target: {
+        value: 'JavaScript',
+      },
+    });
+    expect(screen.queryByDisplayValue('React')).toBeNull();
+    expect(screen.queryByDisplayValue('JavaScript')).toBeInTheDocument();
+
+    fireEvent.submit(screen.queryByText('Submit'));
+    await waitFor(async () => await javascriptPromise);
+    expect(screen.queryByText('Jordan Walke')).toBeNull();
+    expect(screen.queryByText('Dan Abramov, Andrew Clark')).toBeNull();
+    expect(screen.queryByText('Brendan Eich')).toBeInTheDocument();
+  });
+});*/
+
+it('removes a story', async () => {
+  const promise = Promise.resolve({
+    data: {
+      hits: stories,
+    },
+  });
+  axios.get.mockImplementationOnce(() => promise);
+  render(<App />);
+  await waitFor(async () => await promise);
+  expect(screen.getAllByText('Dismiss').length).toBe(2);
+  expect(screen.getByText('Jordan Walke')).toBeInTheDocument();
+  fireEvent.click(screen.getAllByText('Dismiss')[0]);
+  expect(screen.getAllByText('Dismiss').length).toBe(1);
+  expect(screen.queryByText('Jordan Walke')).toBeNull();
+});
+
+
+
+
 describe('SearchForm', () => {
   const searchFormProps = {
     searchTerm: 'React',
@@ -42,14 +151,11 @@ describe('SearchForm', () => {
 
   it('renders the input field with its value', () => {
     render(<SearchForm {...searchFormProps} />);
-
-    screen.debug();
     expect(screen.getByDisplayValue('React')).toBeInTheDocument();
   });
 
   it('renders the correct label', () => {
     render(<SearchForm {...searchFormProps} />);
-
     expect(screen.getByLabelText(/Search/)).toBeInTheDocument();
   });
 
@@ -65,6 +171,11 @@ describe('SearchForm', () => {
     render(<SearchForm {...searchFormProps} />);
     fireEvent.submit(screen.getByRole('button'));
     expect(searchFormProps.onSearchSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders snapshot', () => {
+    const { container } = render(<SearchForm {...searchFormProps} />);
+    expect(container.firstChild).toMatchSnapshot();
   });
 });
 

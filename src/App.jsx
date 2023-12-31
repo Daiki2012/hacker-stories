@@ -49,7 +49,7 @@ const SearchForm = ({
       isFocused
       onInputChange={onSearchInput}
     >
-      <strong>Search:</strong>
+      Search:
     </InputWithLabel>
 
     <button type="submit" disabled={!searchTerm}>
@@ -59,7 +59,7 @@ const SearchForm = ({
 );
 
 const App = () => {
-  const [searchTerm, setSearchTerm] = useStorageState('search','');
+  const [searchTerm, setSearchTerm] = useStorageState('search','React');
 
   const [url, setUrl] = React.useState(
     `${API_ENDPOINT}${searchTerm}`
